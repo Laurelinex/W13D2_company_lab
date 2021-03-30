@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.Cascade;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "employees")
@@ -20,15 +22,35 @@ public class Employee {
     @ManyToOne
     @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
     @JoinColumn(name = "department_id", nullable = false)
-//    @JsonIgnoreProperties({employees})
+    @JsonIgnoreProperties({"employees"})
     private Department department;
-
-//    private List<Project> projects;
+    @ManyToMany
+    @JsonIgnoreProperties({"employees"})
+    @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
+    @JoinTable(
+            name = "employees_projects",
+            joinColumns = {
+                    @JoinColumn(
+                            name = "employee_id",
+                            nullable = false,
+                            updatable = false
+                    )
+            },
+            inverseJoinColumns = {
+                    @JoinColumn(
+                            name = "project_id",
+                            nullable = false,
+                            updatable = false
+                    )
+            }
+    )
+    private List<Project> projects;
 
     public Employee(String firstName, String lastName, Department department) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.department = department;
+        this.projects = new ArrayList<Project>();
     }
 
     public Employee() {
@@ -65,4 +87,13 @@ public class Employee {
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
+
+    public List<Project> getProjects() {
+        return projects;
+    }
+
+    public void setProjects(List<Project> projects) {
+        this.projects = projects;
+    }
+
 }
